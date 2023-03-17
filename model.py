@@ -5,6 +5,7 @@ import keras
 import numpy as np
 from keras.layers import Conv1D, Dense, Dropout, Flatten, MaxPooling1D
 from keras.models import Sequential
+from keras.regularizers import l2
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -22,7 +23,7 @@ def get_data(db_path):
     y = []
 
     for beatmap_id, category in beatmaps:
-        cursor.execute('SELECT x_diff, y_diff, time_diff FROM beatmap_vectors WHERE beatmap_id = ?', (beatmap_id,))
+        cursor.execute('SELECT x_diff, y_diff, time_diff, obj_type FROM beatmap_vectors WHERE beatmap_id = ?', (beatmap_id,))
         vectors = cursor.fetchall()
         if len(vectors) > 0:
             X.append(vectors)
@@ -39,14 +40,15 @@ def get_data(db_path):
 
 def build_model(input_shape, num_classes):
     model = Sequential()
-    model.add(Conv1D(64, kernel_size=3, activation='relu', input_shape=input_shape))
+    model.add(Conv1D(32, kernel_size=3, activation='relu', input_shape=input_shape))
     model.add(MaxPooling1D(pool_size=2))
-    model.add(Conv1D(128, kernel_size=3, activation='relu'))
+    model.add(Conv1D(64, kernel_size=3, activation='relu'))
     model.add(MaxPooling1D(pool_size=2))
     model.add(Flatten())
-    model.add(Dense(256, activation='relu'))
+    model.add(Dense(128, activation='relu', kernel_regularizer=l2(0.001)))
     model.add(Dropout(0.5))
-    model.add(Dense(128, activation='relu'))
+    model.add(Dense(64, activation='relu', kernel_regularizer=l2(0.001)))
+    model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation='softmax'))
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])

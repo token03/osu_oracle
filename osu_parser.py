@@ -15,7 +15,6 @@ def parse_osu_file(file_path):
         'slider_tick': None,
         'hit_objects': [],
         'label': None,
-        'beatmap_images': [],
     }
 
     parent_folder = os.path.dirname(file_path)
@@ -94,7 +93,8 @@ def parse_osu_file(file_path):
         x_diff = obj['x_norm'] - prev_obj['x_norm']
         y_diff = obj['y_norm'] - prev_obj['y_norm']
         time_diff = obj['time_diff_norm']
-        vectors.append((x_diff, y_diff, time_diff))
+        obj_type = obj['type']
+        vectors.append((x_diff, y_diff, time_diff, obj_type))
 
     data['vectors'] = vectors
     return data
@@ -123,6 +123,7 @@ def create_tables(conn):
             x_diff REAL,
             y_diff REAL,
             time_diff REAL,
+            obj_type INTEGER,
             FOREIGN KEY (beatmap_id) REFERENCES beatmaps (id)
         )
     ''')
@@ -140,11 +141,11 @@ def insert_beatmap_data(conn, beatmap_data):
     beatmap_row_id = cursor.lastrowid
 
     for vector in beatmap_data['vectors']:
-        cursor.execute('INSERT INTO beatmap_vectors (beatmap_id, x_diff, y_diff, time_diff) VALUES (?, ?, ?, ?)', (beatmap_row_id, vector[0], vector[1], vector[2]))
+        cursor.execute('INSERT INTO beatmap_vectors (beatmap_id, x_diff, y_diff, time_diff, obj_type) VALUES (?, ?, ?, ?, ?)', (beatmap_row_id, vector[0], vector[1], vector[2], vector[3]))
     conn.commit()
     
 def main():
-    root_dir = '.'  # Current directory
+    root_dir = 'C:\\Users\\Jessie\\Desktop\\dataset\\oracle'  # Current directory
     beatmaps_data = []
 
     # Connect to the SQLite database
