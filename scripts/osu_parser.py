@@ -145,7 +145,7 @@ def insert_beatmap_data(conn, beatmap_data):
     conn.commit()
     
 def main():
-    root_dir = 'C:\\Users\\Jessie\\Desktop\\dataset\\oracle'  # Current directory
+    root_dir = '.'  # Current directory
     beatmaps_data = []
 
     # Connect to the SQLite database
