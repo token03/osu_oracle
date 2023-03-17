@@ -155,5 +155,6 @@ cython_debug/
 #.idea/
 cnn_model.h5
 beatmaps.db
-.osu/
-.pkl/
+*.osu
+*.pkl
+label_encoder.pkl
