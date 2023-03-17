@@ -57,7 +57,7 @@ def build_model(input_shape, num_classes):
 
 
 def main():
-    db_path = 'beatmaps.db'
+    db_path = '/data/beatmaps.db'
     X, y = get_data(db_path)
 
     print(f"X shape: {X.shape}, y shape: {y.shape}")

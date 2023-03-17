@@ -4,12 +4,12 @@ import sys
 import tempfile
 
 import numpy as np
+import requests
 from keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-import requests
 
-import osu_parser  # Import the parser script you provided
+from scripts import osu_parser
 
 
 def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_encoder_path):
@@ -61,8 +61,8 @@ if __name__ == "__main__":
         exit(1)
 
     beatmap_id = sys.argv[1]
-    model_path = "cnn_model.h5"
+    model_path = "oracle/cnn_model.h5"
     max_sequence_length = 2444  # Set this to the same value you used in the training script
-    label_encoder_path = "label_encoder.pkl"  # Replace with the path to your saved LabelEncoder
+    label_encoder_path = "oracle/label_encoder.pkl"  # Replace with the path to your saved LabelEncoder
 
     test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_encoder_path)

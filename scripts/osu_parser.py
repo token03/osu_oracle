@@ -149,7 +149,7 @@ def main():
     beatmaps_data = []
 
     # Connect to the SQLite database
-    conn = sqlite3.connect('beatmaps.db')
+    conn = sqlite3.connect('./data/beatmaps.db')
 
     # Create the necessary tables
     create_tables(conn)
