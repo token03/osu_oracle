@@ -4,7 +4,6 @@ osu!oracle is a machine learning model aimed at categorizing osu! beatmaps into 
 
 ## Overview
 
-The project utilizes a Convolutional Neural Network (CNN) to analyze and classify beatmaps based on their features. It takes a .osu file as input and outputs the predicted category for the beatmap.
 
 ## Requirements
 ```
