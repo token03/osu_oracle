@@ -56,18 +56,29 @@ def parse_osu_file(file_path):
                 elif key == 'SliderTickRate':
                     data['slider_tick'] = value
             elif section == 'HitObjects':  # Move this line one level back
-                obj_data = line.split(',')
-                hit_object_type = int(obj_data[3]) & 0b111
+                    obj_data = line.split(',')
+                    hit_object_type = int(obj_data[3])
 
-                if hit_object_type == 1 or hit_object_type == 2:  # 1 for circle, 2 for slider
-                    hit_object = {
-                        'x': int(obj_data[0]),
-                        'y': int(obj_data[1]),
-                        'time': int(obj_data[2]),
-                        'type': hit_object_type,
-                    }
-                    data['hit_objects'].append(hit_object)
+                    hit_circle_flag = 0b1
+                    slider_flag = 0b10
 
+                    if hit_object_type & hit_circle_flag:
+                        hit_object = {
+                            'x': int(obj_data[0]),
+                            'y': int(obj_data[1]),
+                            'time': int(obj_data[2]),
+                            'length': float(0), # slider len
+                        }
+                        data['hit_objects'].append(hit_object)
+                    elif hit_object_type & slider_flag:
+                        hit_object = {
+                            'x': int(obj_data[0]),
+                            'y': int(obj_data[1]),
+                            'time': int(obj_data[2]),
+                            'length': obj_data[7], # slider len 
+                        }
+                        data['hit_objects'].append(hit_object)
+                        
     # Normalize the coordinates
     max_x, max_y = 512, 384
     for obj in data['hit_objects']:
@@ -90,11 +101,11 @@ def parse_osu_file(file_path):
     vectors = []
     for i, obj in enumerate(data['hit_objects'][1:], start=1):
         prev_obj = data['hit_objects'][i - 1]
-        x_diff = obj['x_norm'] - prev_obj['x_norm']
-        y_diff = obj['y_norm'] - prev_obj['y_norm']
-        time_diff = obj['time_diff_norm']
-        obj_type = obj['type']
-        vectors.append((x_diff, y_diff, time_diff, obj_type))
+        x_diff = round(obj['x_norm'] - prev_obj['x_norm'], 4)
+        y_diff = round(obj['y_norm'] - prev_obj['y_norm'], 4)
+        time_diff = round(obj['time_diff_norm'], 4)
+        length = round(float(obj['length']), 4)
+        vectors.append((x_diff, y_diff, time_diff, length))
 
     data['vectors'] = vectors
     return data
@@ -123,7 +134,7 @@ def create_tables(conn):
             x_diff REAL,
             y_diff REAL,
             time_diff REAL,
-            obj_type INTEGER,
+            length REAL,
             FOREIGN KEY (beatmap_id) REFERENCES beatmaps (id)
         )
     ''')
@@ -141,7 +152,7 @@ def insert_beatmap_data(conn, beatmap_data):
     beatmap_row_id = cursor.lastrowid
 
     for vector in beatmap_data['vectors']:
-        cursor.execute('INSERT INTO beatmap_vectors (beatmap_id, x_diff, y_diff, time_diff, obj_type) VALUES (?, ?, ?, ?, ?)', (beatmap_row_id, vector[0], vector[1], vector[2], vector[3]))
+        cursor.execute('INSERT INTO beatmap_vectors (beatmap_id, x_diff, y_diff, time_diff, length) VALUES (?, ?, ?, ?, ?)', (beatmap_row_id, vector[0], vector[1], vector[2], vector[3]))
     conn.commit()
     
 def main():
@@ -149,7 +160,7 @@ def main():
     beatmaps_data = []
 
     # Connect to the SQLite database
-    conn = sqlite3.connect('./data/beatmaps.db')
+    conn = sqlite3.connect('./beatmaps.db')
 
     # Create the necessary tables
     create_tables(conn)
