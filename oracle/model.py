@@ -3,6 +3,7 @@ import sqlite3
 
 import keras
 import numpy as np
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers import Conv1D, Dense, Dropout, Flatten, MaxPooling1D
 from keras.models import Sequential
 from keras.regularizers import l2
@@ -23,7 +24,7 @@ def get_data(db_path):
     y = []
 
     for beatmap_id, category in beatmaps:
-        cursor.execute('SELECT x_diff, y_diff, time_diff, obj_type FROM beatmap_vectors WHERE beatmap_id = ?', (beatmap_id,))
+        cursor.execute('SELECT x_diff, y_diff, time_diff FROM beatmap_vectors WHERE beatmap_id = ?', (beatmap_id,))
         vectors = cursor.fetchall()
         if len(vectors) > 0:
             X.append(vectors)
@@ -57,11 +58,14 @@ def build_model(input_shape, num_classes):
 
 
 def main():
-    db_path = '/data/beatmaps.db'
+    db_path = './oracle/beatmaps.db'
     X, y = get_data(db_path)
-
-    print(f"X shape: {X.shape}, y shape: {y.shape}")
-
+    np.save('X.npy', X)
+    np.save('y.npy', y)
+    
+    # X = np.load('X.npy')
+    # y = np.load('y.npy')
+    
     # Pad the sequences with zeros to have the same length
     X_padded = pad_sequences(X, dtype='float32', padding='post')
 
@@ -80,9 +84,13 @@ def main():
     input_shape = X_train.shape[1:]
     model = build_model(input_shape, num_classes)
 
-    model.fit(X_train, y_train_categorical, epochs=10, batch_size=32, validation_data=(X_test, y_test_categorical))
+    early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+    model_checkpoint = ModelCheckpoint('cnn_model_best.h5', monitor='val_loss', save_best_only=True)
 
-    model.save('cnn_model.h5')
+    model.fit(X_train, y_train_categorical, epochs=15, batch_size=32, validation_data=(X_test, y_test_categorical),
+              callbacks=[early_stopping, model_checkpoint])
+
+    model.save('cnn_model_final.h5')
 
 
 if __name__ == '__main__':
