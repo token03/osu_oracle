@@ -3,8 +3,9 @@ import sqlite3
 
 import keras
 import numpy as np
+import tensorflow as tf
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras.layers import Conv1D, Dense, Dropout, Flatten, MaxPooling1D
+from keras.layers import LSTM, Conv1D, Dense, Dropout, Flatten, MaxPooling1D
 from keras.models import Sequential
 from keras.regularizers import l2
 from keras.utils import to_categorical
@@ -32,14 +33,11 @@ def get_data(db_path):
 
     conn.close()
 
-    max_length = max(len(seq) for seq in X)
-    X_padded = pad_sequences(X, maxlen=max_length, dtype=np.float32, padding='post')
     y = np.array(y)
 
-    return X_padded, y
+    return X, y
 
-
-def build_model(input_shape, num_classes):
+def build_cnn_model(input_shape, num_classes):
     model = Sequential()
     model.add(Conv1D(32, kernel_size=3, activation='relu', input_shape=input_shape))
     model.add(MaxPooling1D(pool_size=2))
@@ -56,20 +54,50 @@ def build_model(input_shape, num_classes):
 
     return model
 
+def build_rnn_model(input_shape, num_classes):
+    model = Sequential()
+    model.add(LSTM(64, return_sequences=True, input_shape=input_shape))
+    model.add(LSTM(128, return_sequences=False))
+    model.add(Dense(256, activation='relu'))
+    model.add(Dropout(0.5))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dense(num_classes, activation='softmax'))
+
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+    return model
+
 
 def main():
-    db_path = './oracle/beatmaps.db'
-    X, y = get_data(db_path)
-    np.save('X.npy', X)
-    np.save('y.npy', y)
-    
-    # X = np.load('X.npy')
-    # y = np.load('y.npy')
-    
-    # Pad the sequences with zeros to have the same length
-    X_padded = pad_sequences(X, dtype='float32', padding='post')
+    # Check if TensorFlow is built with GPU support
+    if tf.test.is_built_with_cuda():
+        print("TensorFlow is built with GPU support.")
 
-    X_train, X_test, y_train, y_test = train_test_split(X_padded, y, test_size=0.2, random_state=42)
+    # Check if any GPUs are available
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        print(f"Number of available GPUs: {len(gpus)}")
+        for gpu in gpus:
+            print(f"GPU: {gpu}")
+    else:
+        print("No GPUs available.")
+        
+    db_path = './oracle/beatmaps.db'
+    #X, y = get_data(db_path)
+    #np.save('X.npy', X)
+    #np.save('y.npy', y)
+
+    X = np.load('X.npy', allow_pickle=True)
+    y = np.load('y.npy')
+    
+    max_length = max(len(seq) for seq in X)
+    X_array = np.zeros((len(X), max_length, 3))
+
+    for i, seq in enumerate(X):
+        for j, vector in enumerate(seq):
+            X_array[i, j] = vector
+
+    X_train, X_test, y_train, y_test = train_test_split(X_array, y, test_size=0.2, random_state=42)
 
     # Encode labels
     label_encoder = LabelEncoder()
@@ -82,12 +110,14 @@ def main():
     y_test_categorical = to_categorical(y_test_numerical)
     num_classes = len(label_encoder.classes_)
     input_shape = X_train.shape[1:]
-    model = build_model(input_shape, num_classes)
+
+    # Use the RNN model with LSTM layers
+    model = build_cnn_model(input_shape, num_classes)
 
     early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
     model_checkpoint = ModelCheckpoint('cnn_model_best.h5', monitor='val_loss', save_best_only=True)
 
-    model.fit(X_train, y_train_categorical, epochs=15, batch_size=32, validation_data=(X_test, y_test_categorical),
+    model.fit(X_train, y_train_categorical, epochs=15, batch_size=16, validation_data=(X_test, y_test_categorical),
               callbacks=[early_stopping, model_checkpoint])
 
     model.save('cnn_model_final.h5')

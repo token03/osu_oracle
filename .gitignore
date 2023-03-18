@@ -158,3 +158,6 @@ beatmaps.db
 *.osu
 *.pkl
 label_encoder.pkl
+cnn_model_final.h5
+X.npy
+y.npy
