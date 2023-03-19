@@ -189,10 +189,21 @@ def main():
                     beatmaps_data.append(beatmap_data)                # Insert the parsed beatmap data into the SQLite database
                     insert_beatmap_data(conn, beatmap_data)
                     
-                    # Flip the beatmap and add it to the dataset
+                    # Flip horizontally
                     flipped_beatmap_data = flip_beatmap_horizontal(beatmap_data)
                     beatmaps_data.append(flipped_beatmap_data)
                     insert_beatmap_data(conn, flipped_beatmap_data)
+                    
+                    # Flip vertically
+                    flipped_vertical_data = flip_beatmap_vertical(beatmap_data)
+                    beatmaps_data.append(flipped_vertical_data)
+                    insert_beatmap_data(conn, flipped_vertical_data)
+
+                    # Flip both horizontally and vertically
+                    flipped_both_data = flip_beatmap_horizontal(flipped_vertical_data)
+                    beatmaps_data.append(flipped_both_data)
+                    insert_beatmap_data(conn, flipped_both_data)
+
                     pass
 
     # Close the SQLite database connection

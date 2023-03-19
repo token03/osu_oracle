@@ -1,5 +1,6 @@
 import pickle
 import sqlite3
+from collections import defaultdict
 
 import keras
 import numpy as np
@@ -19,24 +20,21 @@ def get_data(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute('SELECT id, category FROM beatmaps')
-    beatmaps = cursor.fetchall()
+    cursor.execute('''SELECT b.id, b.category, v.x_diff, v.y_diff, v.time_diff
+                      FROM beatmaps b
+                      JOIN beatmap_vectors v ON b.id = v.beatmap_id''')
+    rows = cursor.fetchall()
 
-    X = []
-    y = []
+    X = defaultdict(list)
+    y = {}
 
-    for beatmap_id, category in beatmaps:
-        cursor.execute('SELECT x_diff, y_diff, time_diff FROM beatmap_vectors WHERE beatmap_id = ?', (beatmap_id,))
-        vectors = cursor.fetchall()
-        if len(vectors) > 0:
-            X.append(vectors)
-            y.append(category)
+    for beatmap_id, category, x_diff, y_diff, time_diff in rows:
+        X[beatmap_id].append((x_diff, y_diff, time_diff))
+        y[beatmap_id] = category
 
     conn.close()
 
-    y = np.array(y)
-
-    return X, y
+    return list(X.values()), np.array(list(y.values()))
 
 def build_cnn_model(input_shape, num_classes):
     model = Sequential()
@@ -71,12 +69,12 @@ def main():
         print("No GPUs available.")
         
     db_path = './oracle/beatmaps.db'
-    X, y = get_data(db_path)
-    np.save('X.npy', X)
-    np.save('y.npy', y)
+    #X, y = get_data(db_path)
+    #np.save('X.npy', X)
+    #np.save('y.npy', y)
 
-    #X = np.load('X.npy', allow_pickle=True)
-    #y = np.load('y.npy')
+    X = np.load('X.npy', allow_pickle=True)
+    y = np.load('y.npy')
     
     max_length = max(len(seq) for seq in X)
     X_array = np.zeros((len(X), max_length, 3))
