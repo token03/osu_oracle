@@ -35,7 +35,7 @@ python test_model.py 658127
 ```
 
 4. Output should look something like this:
-![Image of output](data\example.png)
+![Image of output](./data/example.png)
 
 5. You could also try the Google Colab but it's still a WIP.
 
