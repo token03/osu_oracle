@@ -69,13 +69,17 @@ def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python test_model.py beatmap_id")
-        exit(1)
-
-    beatmap_id = sys.argv[1]
+    
     model_path = "oracle/cnn_model_final.h5"
     max_sequence_length = 6948  # Set this to the same value you used in the training script
     label_encoder_path = "oracle/label_encoder.pkl"  # Replace with the path to your saved LabelEncoder
+    if len(sys.argv) != 2:
+            print("Insert beatmap_id:")
+            beatmap_id = input()
+            test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_encoder_path)
+            exit(1)
+    
+    beatmap_id = sys.argv[1]
 
     test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_encoder_path)
+    exit(1)

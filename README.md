@@ -4,6 +4,7 @@ osu!oracle is a machine learning model aimed at categorizing osu! beatmaps into 
 
 ## Overview
 [Link to Google Drive](https://drive.google.com/file/d/1o5fbixI9xK_WF_GFhvNOI77D0HW-KeZO/view?usp=share_link)
+
 [Link to Google Colab](https://colab.research.google.com/drive/1vVEpzWpSfArfHxL41sSdiXFtE-0U22HN?usp=sharing)
 
 To test the model, open the directory in a terminal and run
