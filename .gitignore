@@ -161,3 +161,4 @@ label_encoder.pkl
 cnn_model_final.h5
 X.npy
 y.npy
+cnn_model_best.h5

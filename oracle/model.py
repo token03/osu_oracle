@@ -5,7 +5,8 @@ import keras
 import numpy as np
 import tensorflow as tf
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras.layers import LSTM, Conv1D, Dense, Dropout, Flatten, MaxPooling1D
+from keras.layers import (LSTM, BatchNormalization, Conv1D, Dense, Dropout,
+                          Flatten, MaxPooling1D)
 from keras.models import Sequential
 from keras.regularizers import l2
 from keras.utils import to_categorical
@@ -54,19 +55,6 @@ def build_cnn_model(input_shape, num_classes):
 
     return model
 
-def build_rnn_model(input_shape, num_classes):
-    model = Sequential()
-    model.add(LSTM(64, return_sequences=True, input_shape=input_shape))
-    model.add(LSTM(128, return_sequences=False))
-    model.add(Dense(256, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(128, activation='relu'))
-    model.add(Dense(num_classes, activation='softmax'))
-
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-    return model
-
 
 def main():
     # Check if TensorFlow is built with GPU support
@@ -83,12 +71,12 @@ def main():
         print("No GPUs available.")
         
     db_path = './oracle/beatmaps.db'
-    #X, y = get_data(db_path)
-    #np.save('X.npy', X)
-    #np.save('y.npy', y)
+    X, y = get_data(db_path)
+    np.save('X.npy', X)
+    np.save('y.npy', y)
 
-    X = np.load('X.npy', allow_pickle=True)
-    y = np.load('y.npy')
+    #X = np.load('X.npy', allow_pickle=True)
+    #y = np.load('y.npy')
     
     max_length = max(len(seq) for seq in X)
     X_array = np.zeros((len(X), max_length, 3))

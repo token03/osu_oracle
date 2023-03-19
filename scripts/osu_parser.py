@@ -4,6 +4,20 @@ import sqlite3
 import numpy as np
 
 
+def flip_beatmap_horizontal(beatmap_data):
+    max_x = 512
+    flipped_data = beatmap_data.copy()
+    for obj in flipped_data['hit_objects']:
+        obj['x'] = max_x - obj['x']
+    return flipped_data
+
+def flip_beatmap_vertical(beatmap_data):
+    max_y = 384
+    flipped_data = beatmap_data.copy()
+    for obj in flipped_data['hit_objects']:
+        obj['y'] = max_y - obj['y']
+    return flipped_data
+
 def parse_osu_file(file_path):
     data = {
         'beatmap_id': None,
@@ -171,13 +185,15 @@ def main():
                 file_path = os.path.join(dirpath, filename)
                 beatmap_data = parse_osu_file(file_path)
                 if beatmap_data is not None:
-                     # Process the data (e.g., insert into the database)
+                    # Process the data (e.g., insert into the database)
                     beatmaps_data.append(beatmap_data)                # Insert the parsed beatmap data into the SQLite database
                     insert_beatmap_data(conn, beatmap_data)
+                    
+                    # Flip the beatmap and add it to the dataset
+                    flipped_beatmap_data = flip_beatmap_horizontal(beatmap_data)
+                    beatmaps_data.append(flipped_beatmap_data)
+                    insert_beatmap_data(conn, flipped_beatmap_data)
                     pass
-
-
-    print(beatmaps_data)
 
     # Close the SQLite database connection
     conn.close()
