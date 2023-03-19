@@ -1,28 +1,52 @@
 # osu!oracle (WIP)
 
-osu!oracle is a machine learning model aimed at categorizing osu! beatmaps into existing categories (aim, streams, speed, tech, etc). The end goal is to allow easy categorization of beatmaps without having to go into the editor or play them manually.
+osu!oracle is a machine learning model that categorizes osu! beatmaps into existing categories such as aim, streams, speed, tech, etc. The primary goal is to enable swift and accurate categorization of beatmaps without the need to access the editor or play them manually.
 
 ## Overview
-[Link to Google Drive](https://drive.google.com/file/d/1o5fbixI9xK_WF_GFhvNOI77D0HW-KeZO/view?usp=share_link)
+### [Link to Google Drive](https://drive.google.com/file/d/1o5fbixI9xK_WF_GFhvNOI77D0HW-KeZO/view?usp=share_link) | [Link to Google Colab](https://colab.research.google.com/drive/1vVEpzWpSfArfHxL41sSdiXFtE-0U22HN?usp=sharing) 
 
-[Link to Google Colab](https://colab.research.google.com/drive/1vVEpzWpSfArfHxL41sSdiXFtE-0U22HN?usp=sharing)
 
-To test the model, open the directory in a terminal and run
-```sh
-python test_model.py <beatmap_id>
-```
+> Model is currently trained on collections from [osu!collector](https://osucollector.com/) where the beatmaps are mostly from tournament pools and range from `~ 5.3*` to `~ 8.5*` range \
+> Current categories are `aim, alt, tech, and streams` with hopefully more to come
+
+
+
 ## Requirements
 ```
 - Python 3.6 or higher
-- TensorFlow
-- Keras
+- tensorflow
+- keras
+- numpy
+- scikit-learn
 ```
 ## Getting Started
 
-1. Have a computer
+1. Download the model from the Google Drive link above
+2. Open the directory in a terminal 
+	- Make sure you have all the requirements installed. If you don't, run the following command: `pip install <w/e>`
+3. Run the following script to test the current iteration of the model:
+```
+python test_model.py <beatmap_id>
+```
+> ex. to test Blue Zenith's top diff, take the last sequence of digits (the beatmap_id) https://osu.ppy.sh/beatmapsets/292301#osu/658127 and run the following command:
+```
+python test_model.py 658127
+```
 
-## To-Do
-> [ ] idk 
+4. Output should look something like this:
+![Image of output](data\example.png)
+
+5. You could also try the Google Colab but it's still a WIP.
+
+## Known Issues
+- Low SR (< ~5) maps outside of are not being categorized properly at all 
+	- ex. 1264763
+- Maps with multiple skillsets sometimes get categorized weirdly 
+	- ex. Marianne (644971) as tech/alt
+- Gamemodes other than standard are currently not supported and will probably break
+- Short and long maps sometimes are sometimes categorized weirdly
+
+
 
 
 ## Disclaimer 
