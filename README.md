@@ -40,13 +40,12 @@ python test_model.py 658127
 5. You could also try the Google Colab but it's still a WIP.
 
 ## Known Issues
-- Low SR (< ~5) maps are not being categorized properly at all 
+- Lower SR (<6*) maps outside of the training data range are not being categorized properly at all 
 	- ex. 1264763
+	- Aim and stream maps under 6* will usually get categorized as tech or alt
 - Maps with multiple skillsets sometimes get categorized weirdly 
 	- ex. Marianne (644971) as tech/alt
 - Gamemodes other than standard are currently not supported and will probably break
-- Extremely short and extremely long maps are sometimes categorized weirdly
-
 
 
 
