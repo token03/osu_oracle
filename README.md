@@ -14,7 +14,7 @@ osu!oracle is a machine learning model that categorizes osu! beatmaps into exist
 
 ## Requirements
 ```
-- Python 3.6 or higher
+- Python 3
 - tensorflow
 - keras
 - numpy
