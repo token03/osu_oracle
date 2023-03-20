@@ -69,12 +69,7 @@ def main():
         print("No GPUs available.")
         
     db_path = './oracle/beatmaps.db'
-    #X, y = get_data(db_path)
-    #np.save('X.npy', X)
-    #np.save('y.npy', y)
-
-    X = np.load('X.npy', allow_pickle=True)
-    y = np.load('y.npy')
+    X, y = get_data(db_path)
     
     max_length = max(len(seq) for seq in X)
     X_array = np.zeros((len(X), max_length, 3))
