@@ -18,7 +18,7 @@ def flip_beatmap_vertical(beatmap_data):
         obj['y'] = max_y - obj['y']
     return flipped_data
 
-def parse_osu_file(file_path):
+def parse_osu_file(file_path, print_info=False):
     data = {
         'beatmap_id': None,
         'hp_drain': None,
@@ -50,6 +50,14 @@ def parse_osu_file(file_path):
 
             if section == 'Metadata':
                 key, value = line.split(':', maxsplit=1)
+                if key == 'Title' and print_info:
+                    print("Title: " + value, end = ' ')
+                if key == 'Artist' and print_info:
+                    print("by " + value)
+                if key == 'Creator' and print_info:
+                    print("Mapper: " + value)
+                if key == 'Version' and print_info:
+                    print("Diffuculty: " + value)
                 if key == 'BeatmapID':
                     data['beatmap_id'] = int(value)
                     if data['beatmap_id'] is None:
