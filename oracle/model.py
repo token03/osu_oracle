@@ -36,23 +36,23 @@ def get_data(db_path):
 
     return list(X.values()), np.array(list(y.values()))
 
-def build_cnn_model(input_shape, num_classes):
+def build_cnn_model(input_shape, num_classes, learning_rate=0.001, dropout_rate=0.5, l2_reg=0.001):
     model = Sequential()
-    model.add(Conv1D(32, kernel_size=3, activation='relu', input_shape=input_shape))
+    model.add(Conv1D(32, kernel_size=3, activation='relu', input_shape=input_shape, kernel_regularizer=l2(l2_reg)))
     model.add(MaxPooling1D(pool_size=2))
-    model.add(Conv1D(64, kernel_size=3, activation='relu'))
+    model.add(Conv1D(64, kernel_size=3, activation='relu', kernel_regularizer=l2(l2_reg)))
     model.add(MaxPooling1D(pool_size=2))
     model.add(Flatten())
-    model.add(Dense(128, activation='relu', kernel_regularizer=l2(0.001)))
-    model.add(Dropout(0.5))
-    model.add(Dense(64, activation='relu', kernel_regularizer=l2(0.001)))
-    model.add(Dropout(0.5))
+    model.add(Dense(128, activation='relu', kernel_regularizer=l2(l2_reg)))
+    model.add(Dropout(dropout_rate))
+    model.add(Dense(64, activation='relu', kernel_regularizer=l2(l2_reg)))
+    model.add(Dropout(dropout_rate))
     model.add(Dense(num_classes, activation='softmax'))
 
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
+                  loss='categorical_crossentropy', metrics=['accuracy'])
 
     return model
-
 
 def main():
     # Check if TensorFlow is built with GPU support
@@ -69,16 +69,19 @@ def main():
         print("No GPUs available.")
         
     db_path = './oracle/beatmaps.db'
-    X, y = get_data(db_path)
+    #X, y = get_data(db_path)
+    
+   # X = pad_sequences(X, dtype='float32', padding='post')
+
+    #np.save('X.npy', X)
+    #np.save('y.npy', y)
+
+    X = np.load('X.npy', allow_pickle=True)
+    y = np.load('y.npy')
     
     max_length = max(len(seq) for seq in X)
-    X_array = np.zeros((len(X), max_length, 3))
 
-    for i, seq in enumerate(X):
-        for j, vector in enumerate(seq):
-            X_array[i, j] = vector
-
-    X_train, X_test, y_train, y_test = train_test_split(X_array, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     # Encode labels
     label_encoder = LabelEncoder()
@@ -98,7 +101,7 @@ def main():
     early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
     model_checkpoint = ModelCheckpoint('cnn_model_best.h5', monitor='val_loss', save_best_only=True)
 
-    model.fit(X_train, y_train_categorical, epochs=15, batch_size=16, validation_data=(X_test, y_test_categorical),
+    model.fit(X_train, y_train_categorical, epochs=30, batch_size=16, validation_data=(X_test, y_test_categorical),
               callbacks=[early_stopping, model_checkpoint])
 
     model.save('cnn_model_final.h5')
