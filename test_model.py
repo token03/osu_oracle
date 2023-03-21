@@ -33,7 +33,7 @@ def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_
         temp_file_path = temp_file.name
 
     # Parse the temporary .osu file and get the beatmap data
-    beatmap_data = osu_parser.parse_osu_file(temp_file_path, True)
+    beatmap_data = osu_parser.parse_osu_file(temp_file_path,)
     if beatmap_data is None:
         print("Invalid .osu file.")
         os.unlink(temp_file_path)  # Delete the temporary file
@@ -69,7 +69,7 @@ def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_
 
 
 if __name__ == "__main__":
-    
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
     model_path = "oracle/cnn_model_final.h5"
     max_sequence_length = 6948  # Set this to the same value you used in the training script
     label_encoder_path = "oracle/label_encoder.pkl"  # Replace with the path to your saved LabelEncoder
