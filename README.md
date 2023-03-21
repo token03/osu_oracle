@@ -1,6 +1,7 @@
 # osu!oracle (WIP)
 
-osu!oracle is a machine learning model that classifies osu! beatmaps into existing categories such as aim, streams, speed, tech, etc. The primary goal is to enable swift and accurate classification of beatmaps without the need to access the editor or play them manually.
+osu!oracle is beatmap classifier that takes in an given osu! beatmap and categorizes it into an existing genre such as aim, streams, speed, tech, etc. 
+
 
 ## Overview
 ### [Link to Google Drive](https://drive.google.com/file/d/1o5fbixI9xK_WF_GFhvNOI77D0HW-KeZO/view?usp=share_link) | [Link to Google Colab](https://colab.research.google.com/drive/1vVEpzWpSfArfHxL41sSdiXFtE-0U22HN?usp=sharing) 
