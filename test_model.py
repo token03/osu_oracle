@@ -33,7 +33,7 @@ def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_
         temp_file_path = temp_file.name
 
     # Parse the temporary .osu file and get the beatmap data
-    beatmap_data = osu_parser.parse_osu_file(temp_file_path)
+    beatmap_data = osu_parser.parse_osu_file(temp_file_path, True)
     if beatmap_data is None:
         print("Invalid .osu file.")
         os.unlink(temp_file_path)  # Delete the temporary file
