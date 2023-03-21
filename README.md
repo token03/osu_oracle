@@ -1,12 +1,12 @@
 # osu!oracle (WIP)
 
-osu!oracle is a machine learning model that categorizes osu! beatmaps into existing categories such as aim, streams, speed, tech, etc. The primary goal is to enable swift and accurate categorization of beatmaps without the need to access the editor or play them manually.
+osu!oracle is a machine learning model that classifies osu! beatmaps into existing categories such as aim, streams, speed, tech, etc. The primary goal is to enable swift and accurate classification of beatmaps without the need to access the editor or play them manually.
 
 ## Overview
 ### [Link to Google Drive](https://drive.google.com/file/d/1o5fbixI9xK_WF_GFhvNOI77D0HW-KeZO/view?usp=share_link) | [Link to Google Colab](https://colab.research.google.com/drive/1vVEpzWpSfArfHxL41sSdiXFtE-0U22HN?usp=sharing) 
 
 
-> Model is currently trained on collections from [osu!collector](https://osucollector.com/) where the beatmaps are mostly from tournament pools and range from `~ 5.3*` to `~ 8.5*` range.
+> Model is currently trained on collections from [osu!collector](https://osucollector.com/) where the beatmaps are mostly from tournament pools and range from `~ 5.1☆` to `~ 8.5☆` range.
 
 > Current categories are `aim, alt, tech, and streams` with hopefully more to come
 
@@ -21,6 +21,12 @@ osu!oracle is a machine learning model that categorizes osu! beatmaps into exist
 - scikit-learn
 ```
 ## Getting Started
+
+### Running on Colab (Recommended)
+
+1. Simply open the Google Colab link, run the setup and you're good to go
+
+### Running Locally
 
 1. Download the model from the Google Drive link above
 2. Open the directory in a terminal 
@@ -37,12 +43,10 @@ python test_model.py 658127
 4. Output should look something like this:
 ![Image of output](./data/example.png)
 
-5. You could also try the Google Colab but it's still a WIP.
-
 ## Known Issues
+- The model performance drops significantly when classifying outside its trained data range of 5☆ to 8☆ maps
 - Map categorization for awkward aim maps is still a bit off
 	- ex. [sonnyc's The Glory Days](https://osu.ppy.sh/beatmapsets/503486#osu/1071242)
-- Maps with multiple skillsets sometimes get categorized weirdly 
 - Gamemodes other than standard are currently not supported and will probably break
 
 
