@@ -46,8 +46,7 @@ python test_model.py 658127
 
 ## Known Issues
 - The model performance drops significantly when classifying outside its trained data range of 5☆ to 8☆ maps
-- Map categorization for awkward aim maps is still a bit off
-	- ex. [sonnyc's The Glory Days](https://osu.ppy.sh/beatmapsets/503486#osu/1071242)
+- Extremely long compilation-type maps are improperly classified
 - Gamemodes other than standard are currently not supported and will probably break
 
 

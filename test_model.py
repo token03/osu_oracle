@@ -41,8 +41,8 @@ def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_
 
     # Get the vectors and pad them
     beatmap_vectors = beatmap_data['vectors']
-    beatmap_vectors_trimmed = np.delete(beatmap_vectors, 3, axis=1)
-    beatmap_vectors_padded = pad_sequences([beatmap_vectors_trimmed], dtype='float32', padding='post', maxlen=max_sequence_length)
+    # beatmap_vectors = np.delete(beatmap_vectors, 3, axis=1)
+    beatmap_vectors_padded = pad_sequences([beatmap_vectors], dtype='float32', padding='post', maxlen=max_sequence_length)
 
 
     # Make a prediction using the model

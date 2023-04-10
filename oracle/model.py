@@ -20,7 +20,7 @@ def get_data(db_path):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute('''SELECT b.id, b.category, v.x_diff, v.y_diff, v.time_diff
+    cursor.execute('''SELECT b.id, b.category, v.x_diff, v.y_diff, v.time_diff, v.length
                       FROM beatmaps b
                       JOIN beatmap_vectors v ON b.id = v.beatmap_id''')
     rows = cursor.fetchall()
@@ -69,13 +69,16 @@ def main():
         print("No GPUs available.")
         
     db_path = './oracle/beatmaps.db'
-    #X, y = get_data(db_path)
     
-   # X = pad_sequences(X, dtype='float32', padding='post')
+    X, y = get_data(db_path)
+    
+    X = pad_sequences(X, dtype='float32', padding='post')
 
-    #np.save('X.npy', X)
-    #np.save('y.npy', y)
-
+    np.save('X.npy', X)
+    np.save('y.npy', y)
+    
+    exit()
+    
     X = np.load('X.npy', allow_pickle=True)
     y = np.load('y.npy')
     
