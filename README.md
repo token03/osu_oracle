@@ -4,7 +4,7 @@ osu!oracle is beatmap classifier that takes in an given osu! beatmap and categor
 
 
 ## Overview
-### [Link to Google Drive](https://drive.google.com/file/d/1o5fbixI9xK_WF_GFhvNOI77D0HW-KeZO/view?usp=share_link) | [Link to Google Colab](https://colab.research.google.com/drive/1vVEpzWpSfArfHxL41sSdiXFtE-0U22HN?usp=sharing) 
+### [Link to Google Colab](https://colab.research.google.com/drive/1vVEpzWpSfArfHxL41sSdiXFtE-0U22HN?usp=sharing) 
 
 
 > Model is currently trained on collections from [osu!collector](https://osucollector.com/) where the beatmaps are mostly from tournament pools and range from `~ 5.1☆` to `~ 8.5☆` range.
@@ -46,7 +46,7 @@ python test_model.py 658127
 
 ## Known Issues
 - The model performance drops significantly when classifying outside its trained data range of 5☆ to 8☆ maps
-- Extremely long compilation-type maps are improperly classified
+- Maps with multiple skillsets are occasionally improperly classified
 - Gamemodes other than standard are currently not supported and will probably break
 
 
