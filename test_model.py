@@ -12,9 +12,8 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from scripts import osu_parser
 
 
-def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_encoder_path):
-    # Load the model and the LabelEncoder
-    model = load_model(model_path)
+def test_model_on_beatmap_id(beatmap_id, bagged_models, max_sequence_length, label_encoder_path):
+    # Load the label encoder
     with open(label_encoder_path, 'rb') as f:
         label_encoder = pickle.load(f)
 
@@ -33,7 +32,7 @@ def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_
         temp_file_path = temp_file.name
 
     # Parse the temporary .osu file and get the beatmap data
-    beatmap_data = osu_parser.parse_osu_file(temp_file_path,)
+    beatmap_data = parse_osu_file(temp_file_path, True)
     if beatmap_data is None:
         print("Invalid .osu file.")
         os.unlink(temp_file_path)  # Delete the temporary file
@@ -41,45 +40,50 @@ def test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_
 
     # Get the vectors and pad them
     beatmap_vectors = beatmap_data['vectors']
-    # beatmap_vectors = np.delete(beatmap_vectors, 3, axis=1)
+    #beatmap_vectors = np.delete(beatmap_vectors, 3, axis=1)
     beatmap_vectors_padded = pad_sequences([beatmap_vectors], dtype='float32', padding='post', maxlen=max_sequence_length)
 
 
-    # Make a prediction using the model
-    prediction = model.predict(beatmap_vectors_padded)
+    # Use the average prediction of the bagged models
+    y_preds = []
+    for model in bagged_models:
+        y_pred = model.predict(beatmap_vectors_padded)
+        y_preds.append(y_pred)
 
-    # Get the predicted category indices and their corresponding confidence scores
-    predicted_category_indices = np.argsort(-prediction, axis=-1)
-    predicted_category_confidences = np.sort(prediction, axis=-1)[:, ::-1]
+    y_preds_mean = np.mean(y_preds, axis=0)
+    y_preds_mean_numerical = np.argmax(y_preds_mean, axis=1)
 
-    # Get the labels for the first and second most confident predictions
-    predicted_category = label_encoder.inverse_transform(predicted_category_indices[:, 0])
-    second_predicted_category = label_encoder.inverse_transform(predicted_category_indices[:, 1])
+    # Determine the predicted category and confidence for each category
+    categories = label_encoder.inverse_transform(range(len(y_preds_mean[0])))
+    confidences = y_preds_mean[0]
 
-    # Get the confidence scores for the first and second most confident predictions
-    predicted_confidence = predicted_category_confidences[:, 0]
-    second_predicted_confidence = predicted_category_confidences[:, 1]
+    # Create a list of (category, confidence) tuples
+    predictions = list(zip(categories, confidences))
 
-    print(f"Predicted category for beatmap ID {beatmap_id}: {predicted_category[0]}")
-    print(f"Confidence score for the predicted category: {predicted_confidence[0]}")
-    print(f"Second most confident prediction: {second_predicted_category[0]}")
-    print(f"Confidence score for the second most confident prediction: {second_predicted_confidence[0]}")
+    # Sort the predictions by confidence in descending order
+    sorted_predictions = sorted(predictions, key=lambda x: x[1], reverse=True)
 
-    os.unlink(temp_file_path)  # Delete the temporary file
+    # Print the predicted categories and confidence for confidences greater than 5%
+    for category, confidence in sorted_predictions:
+        if confidence > 0.05:
+            print(f"Predicted category for beatmap {beatmap_id}: {category}, confidence: {confidence:.2f}")
 
+
+from IPython.display import clear_output
+import time
 
 if __name__ == "__main__":
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-    model_path = "oracle/cnn_model_final.h5"
-    max_sequence_length = 6948  # Set this to the same value you used in the training script
-    label_encoder_path = "oracle/label_encoder.pkl"  # Replace with the path to your saved LabelEncoder
-    if len(sys.argv) != 2:
-            print("Insert beatmap_id:")
-            beatmap_id = input()
-            test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_encoder_path)
-            exit(1)
-    
-    beatmap_id = sys.argv[1]
-
-    test_model_on_beatmap_id(beatmap_id, model_path, max_sequence_length, label_encoder_path)
-    exit(1)
+    model_paths = [f"/content/bagged_cnn_models/bagged_cnn_model_{i}.h5" for i in range(5)]  # Assuming you have saved 5 models
+    max_sequence_length = 6948
+    label_encoder_path = "/content/label_encoder.pkl"
+    bagged_models = [load_model(model_path) for model_path in model_paths]
+    while True:
+        clear_output(wait=True)  # Clear the output
+        print("----------------------------------------------------")
+        print("Enter a beatmap ID to classify (or 'exit' to quit): ", end='')
+        beatmap_id = input()
+        if beatmap_id == "exit":
+            break
+        test_model_on_beatmap_id(beatmap_id, bagged_models, max_sequence_length, label_encoder_path)
+        print("----------------------------------------------------\n")
+        time.sleep(10)  # Add a short delay before clearing the output again
