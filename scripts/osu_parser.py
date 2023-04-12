@@ -132,6 +132,15 @@ def parse_osu_file(file_path, print_info=False):
     data['vectors'] = vectors
     return data
 
+def find_max_slider_length(beatmaps):
+    max_slider_length = 0
+    for beatmap in beatmaps:
+        for hit_object in beatmap['hit_objects']:
+            if 'length' in hit_object:
+                max_slider_length = max(max_slider_length, hit_object['length'])
+    return max_slider_length
+
+
 def create_tables(conn):
     cursor = conn.cursor()
 
@@ -192,7 +201,7 @@ def main():
             if filename.endswith('.osu'):
                 file_path = os.path.join(dirpath, filename)
                 beatmap_data = parse_osu_file(file_path)
-                if beatmap_data is not None:
+                if beatmap_data is not None and (len(beatmap_data['vectors']) < 4200):
                     # Process the data (e.g., insert into the database)
                     beatmaps_data.append(beatmap_data)                # Insert the parsed beatmap data into the SQLite database
                     insert_beatmap_data(conn, beatmap_data)
