@@ -1,4 +1,4 @@
-# osu!oracle (WIP)
+# osu!oracle
 
 osu!oracle is beatmap classifier that takes in an given osu! beatmap and categorizes it into an existing genre such as aim, streams, speed, tech, etc. 
 
@@ -23,11 +23,11 @@ osu!oracle is beatmap classifier that takes in an given osu! beatmap and categor
 ```
 ## Getting Started
 
-### Running on Colab (Recommended)
+### Running on Colab (Highly Recommended)
 
 1. Simply open the Google Colab link, run the setup and you're good to go
 
-### Running Locally
+### Running Locally (Doesn't Work ATM)
 
 1. Download the model from the Google Drive link above
 2. Open the directory in a terminal 
