@@ -12,7 +12,7 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from scripts import osu_parser
 
 
-def test_model_on_beatmap_id(beatmap_id, bagged_models, max_sequence_length, label_encoder_path):
+def test_model_on_beatmap_id(beatmap_id, bagged_models, max_sequence_length, max_slider_length, label_encoder_path):
     # Load the label encoder
     with open(label_encoder_path, 'rb') as f:
         label_encoder = pickle.load(f)
@@ -32,7 +32,7 @@ def test_model_on_beatmap_id(beatmap_id, bagged_models, max_sequence_length, lab
         temp_file_path = temp_file.name
 
     # Parse the temporary .osu file and get the beatmap data
-    beatmap_data = parse_osu_file(temp_file_path, True)
+    beatmap_data = parse_osu_file(temp_file_path, max_slider_length, True)
     if beatmap_data is None:
         print("Invalid .osu file.")
         os.unlink(temp_file_path)  # Delete the temporary file
@@ -73,17 +73,19 @@ from IPython.display import clear_output
 import time
 
 if __name__ == "__main__":
-    model_paths = [f"/content/bagged_cnn_models/bagged_cnn_model_{i}.h5" for i in range(5)]  # Assuming you have saved 5 models
-    max_sequence_length = 6948
-    label_encoder_path = "/content/label_encoder.pkl"
+    model_folder = "/content/bagged_cnn_models/"
+    model_paths = [os.path.join(model_folder, f) for f in os.listdir(model_folder) if f.endswith('.h5')]
+    max_sequence_length = 4170
+    max_slider_length = 300.0
+    label_encoder_path = model_folder + "label_encoder.pkl"
     bagged_models = [load_model(model_path) for model_path in model_paths]
     while True:
-        clear_output(wait=True)  # Clear the output
         print("----------------------------------------------------")
         print("Enter a beatmap ID to classify (or 'exit' to quit): ", end='')
         beatmap_id = input()
+        print("----------------------------------------------------")
+        clear_output(wait=True)  # Clear the output
+        print("----------------------------------------------------")
         if beatmap_id == "exit":
             break
-        test_model_on_beatmap_id(beatmap_id, bagged_models, max_sequence_length, label_encoder_path)
-        print("----------------------------------------------------\n")
-        time.sleep(10)  # Add a short delay before clearing the output again
+        test_model_on_beatmap_id(beatmap_id, bagged_models, max_sequence_length, max_slider_length, label_encoder_path)

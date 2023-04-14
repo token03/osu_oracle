@@ -18,7 +18,7 @@ def flip_beatmap_vertical(beatmap_data):
         obj['y'] = max_y - obj['y']
     return flipped_data
 
-def parse_osu_file(file_path, print_info=False):
+def parse_osu_file(file_path, max_slider_length = 1, print_info=False):
     data = {
         'beatmap_id': None,
         'hp_drain': None,
@@ -97,7 +97,7 @@ def parse_osu_file(file_path, print_info=False):
                             'x': int(obj_data[0]),
                             'y': int(obj_data[1]),
                             'time': int(obj_data[2]),
-                            'length': obj_data[7], # slider len 
+                            'length': min(500, float(obj_data[7])), # slider len 
                         }
                         data['hit_objects'].append(hit_object)
                         
@@ -126,19 +126,11 @@ def parse_osu_file(file_path, print_info=False):
         x_diff = round(obj['x_norm'] - prev_obj['x_norm'], 4)
         y_diff = round(obj['y_norm'] - prev_obj['y_norm'], 4)
         time_diff = round(obj['time_diff_norm'], 4)
-        length = round(float(obj['length']), 4)
-        vectors.append((x_diff, y_diff, time_diff, length))
+        length = round(obj['length'], 4)
+        vectors.append((x_diff, y_diff, time_diff, length / max_slider_length))
 
     data['vectors'] = vectors
     return data
-
-def find_max_slider_length(beatmaps):
-    max_slider_length = 0
-    for beatmap in beatmaps:
-        for hit_object in beatmap['hit_objects']:
-            if 'length' in hit_object:
-                max_slider_length = max(max_slider_length, hit_object['length'])
-    return max_slider_length
 
 
 def create_tables(conn):

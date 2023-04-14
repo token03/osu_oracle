@@ -10,11 +10,12 @@ cursor.execute('''
     FROM beatmap_vectors
     GROUP BY beatmap_id
     ORDER BY vector_count DESC
-    LIMIT 100;
+    LIMIT 200;
 ''')
 
 rows = cursor.fetchall()
 if rows:
+    print("Top 5 beatmaps by vector count:")
     for row in rows:
         beatmap_id = row[0]
         vector_count = row[1]
