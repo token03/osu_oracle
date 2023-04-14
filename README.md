@@ -54,5 +54,5 @@ python test_model.py 658127
 
 ## Disclaimer 
 
-This project is still a **massive WIP**. The model is in a functioning state but still needs tweaking along with a host of other issues. This is my first time working with both Python and ML so I'm sure there are better ways to do things. 
+The model is in a functioning state but still needs tweaking along with a host of other issues. This is my first time working with both Python, Tensorflow and anything ML-related so I'm sure there are far better ways to do things. 
 
