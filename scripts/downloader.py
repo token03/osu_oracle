@@ -24,7 +24,6 @@ def extract_numbers(input_file):
         for number in numbers:
             outfile.write(f"{number}\n")
 
-
 def download_beatmaps(input_file, output_folder):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -32,11 +31,14 @@ def download_beatmaps(input_file, output_folder):
     with open(input_file, 'r') as infile:
         for line in infile:
             beatmap_id = line.strip()
+            file_path = os.path.join(output_folder, f"{beatmap_id}.osu")
+            if os.path.exists(file_path):
+                print(f"{beatmap_id}.osu already exists, skipping download")
+                continue
             url = f"https://osu.direct/api/osu/{beatmap_id}"
             response = requests.get(url)
 
             if response.status_code == 200:
-                file_path = os.path.join(output_folder, f"{beatmap_id}.osu")
                 with open(file_path, 'wb') as outfile:
                     outfile.write(response.content)
                 print(f"Downloaded {beatmap_id}.osu")

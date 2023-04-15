@@ -45,9 +45,9 @@ python test_model.py 658127
 ![Image of output](./data/example.png)
 
 ## Known Issues
-- The model performance drops significantly when classifying outside its trained data range of 5☆ to 8☆ maps
+- The model performance drops significantly when working outside its trained data range of 5☆ to 8☆ maps
 - Aim maps over 300s in length occasionally leans towards tech for some reason
-- Maps with multiple skillsets are occasionally improperly classified
+- Maps that have both aim and stream componenets are occasionaly misclassified
 - Gamemodes other than standard are currently not supported and will probably break
 
 

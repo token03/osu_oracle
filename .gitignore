@@ -153,8 +153,9 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+
 cnn_model.h5
-beatmaps.db
 *.osu
 *.pkl
 label_encoder.pkl
@@ -162,3 +163,6 @@ cnn_model_final.h5
 X.npy
 y.npy
 cnn_model_best.h5
+.db
+beatmaps.db
+beatmaps.db
