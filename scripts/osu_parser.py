@@ -18,7 +18,7 @@ def flip_beatmap_vertical(beatmap_data):
         obj['y'] = max_y - obj['y']
     return flipped_data
 
-def parse_osu_file(file_path, max_slider_length = 1, print_info=False):
+def parse_osu_file(file_path, max_slider_length = 1, max_time_diff = 1, print_info=False):
     data = {
         'beatmap_id': None,
         'hp_drain': None,
@@ -88,7 +88,7 @@ def parse_osu_file(file_path, max_slider_length = 1, print_info=False):
                         hit_object = {
                             'x': int(obj_data[0]),
                             'y': int(obj_data[1]),
-                            'time': int(obj_data[2]),
+                            'time': min(1000, int(obj_data[2])),
                             'length': float(0), # slider len
                         }
                         data['hit_objects'].append(hit_object)
@@ -96,7 +96,7 @@ def parse_osu_file(file_path, max_slider_length = 1, print_info=False):
                         hit_object = {
                             'x': int(obj_data[0]),
                             'y': int(obj_data[1]),
-                            'time': int(obj_data[2]),
+                            'time': min(1000, int(obj_data[2])),
                             'length': min(500, float(obj_data[7])), # slider len 
                         }
                         data['hit_objects'].append(hit_object)
@@ -113,21 +113,14 @@ def parse_osu_file(file_path, max_slider_length = 1, print_info=False):
             obj['time_diff'] = obj['time'] - data['hit_objects'][i - 1]['time']
         data['hit_objects'][0]['time_diff'] = 0
 
-
-    # Normalize the time differences (optional)
-    if data['hit_objects']:  # Add this condition
-        max_time_diff = max(obj['time_diff'] for obj in data['hit_objects'])
-        for obj in data['hit_objects']:
-            obj['time_diff_norm'] = obj['time_diff'] / max_time_diff
-
     vectors = []
     for i, obj in enumerate(data['hit_objects'][1:], start=1):
         prev_obj = data['hit_objects'][i - 1]
         x_diff = round(obj['x_norm'] - prev_obj['x_norm'], 4)
         y_diff = round(obj['y_norm'] - prev_obj['y_norm'], 4)
-        time_diff = round(obj['time_diff_norm'], 4)
+        time_diff = round(obj['time_diff'], 4)
         length = round(obj['length'], 4)
-        vectors.append((x_diff, y_diff, time_diff, length / max_slider_length))
+        vectors.append((x_diff, y_diff, time_diff / max_time_diff, length / max_slider_length))
 
     data['vectors'] = vectors
     return data
