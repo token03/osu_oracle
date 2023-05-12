@@ -1,21 +1,14 @@
 import os
 import sqlite3
 
-import numpy as np
-
-
-def flip_beatmap_horizontal(beatmap_data):
-    max_x = 512
+def flip_beatmap(beatmap_data, horizontal=True, vertical=True):
+    max_x, max_y = 512, 384
     flipped_data = beatmap_data.copy()
     for obj in flipped_data['hit_objects']:
-        obj['x'] = max_x - obj['x']
-    return flipped_data
-
-def flip_beatmap_vertical(beatmap_data):
-    max_y = 384
-    flipped_data = beatmap_data.copy()
-    for obj in flipped_data['hit_objects']:
-        obj['y'] = max_y - obj['y']
+        if horizontal:
+            obj['x'] = max_x - obj['x']
+        if vertical:
+            obj['y'] = max_y - obj['y']
     return flipped_data
 
 def parse_osu_file(file_path, max_slider_length = 1, max_time_diff = 1, print_info=False):
@@ -66,13 +59,13 @@ def parse_osu_file(file_path, max_slider_length = 1, max_time_diff = 1, print_in
                 key, value = line.split(':', maxsplit=1)
                 value = float(value)
                 if key == 'HPDrainRate':
-                    data['hp_drain'] = value
+                    data['hp_drain'] = value / 10
                 elif key == 'CircleSize':
-                    data['circle_size'] = value
+                    data['circle_size'] = value / 10
                 elif key == 'OverallDifficulty':
-                    data['od'] = value
+                    data['od'] = value / 10
                 elif key == 'ApproachRate':
-                    data['ar'] = value
+                    data['ar'] = value / 10
                 elif key == 'SliderMultiplier':
                     data['slider_multiplier'] = value
                 elif key == 'SliderTickRate':
@@ -116,10 +109,10 @@ def parse_osu_file(file_path, max_slider_length = 1, max_time_diff = 1, print_in
     vectors = []
     for i, obj in enumerate(data['hit_objects'][1:], start=1):
         prev_obj = data['hit_objects'][i - 1]
-        x_diff = round(obj['x_norm'] - prev_obj['x_norm'], 4)
-        y_diff = round(obj['y_norm'] - prev_obj['y_norm'], 4)
-        time_diff = round(obj['time_diff'], 4)
-        length = round(obj['length'], 4)
+        x_diff = obj['x_norm'] - prev_obj['x_norm']
+        y_diff = obj['y_norm'] - prev_obj['y_norm']
+        time_diff = obj['time_diff']
+        length = obj['length']
         vectors.append((x_diff, y_diff, time_diff / max_time_diff, length / max_slider_length))
 
     data['vectors'] = vectors
@@ -186,7 +179,7 @@ def main():
             if filename.endswith('.osu'):
                 file_path = os.path.join(dirpath, filename)
                 beatmap_data = parse_osu_file(file_path)
-                if beatmap_data is not None and (len(beatmap_data['vectors']) < 4200):
+                if beatmap_data is not None and (len(beatmap_data['vectors']) <= 3502):
                     # Process the data (e.g., insert into the database)
                     beatmaps_data.append(beatmap_data)                # Insert the parsed beatmap data into the SQLite database
                     insert_beatmap_data(conn, beatmap_data)

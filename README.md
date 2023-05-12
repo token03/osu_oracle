@@ -27,7 +27,7 @@ osu!oracle is beatmap classifier that takes in an given osu! beatmap and categor
 
 1. Simply open the Google Colab link, run the setup and you're good to go
 
-### Running Locally (Doesn't Work ATM)
+### Running Locally (outdated, contact me if you still want to try)
 
 1. Download the model from the Google Drive link above
 2. Open the directory in a terminal 
@@ -46,13 +46,7 @@ python test_model.py 658127
 
 ## Known Issues
 - The model performance drops significantly when working outside its trained data range of 5☆ to 8☆ maps
-- Aim maps over 300s in length occasionally leans towards tech for some reason
+- Aim maps over 300 second in length occasionally leans towards tech for some reason
 - Maps that have both aim and stream componenets are occasionaly misclassified
 - Gamemodes other than standard are currently not supported and will probably break
-
-
-
-## Disclaimer 
-
-The model is in a functioning state but still needs tweaking along with a host of other issues. This is my first time working with both Python, Tensorflow and anything ML-related so I'm sure there are far better ways to do things. 
 
