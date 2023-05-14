@@ -50,3 +50,6 @@ python test_model.py 658127
 - Maps that have both aim and stream componenets are occasionaly misclassified
 - Gamemodes other than standard are currently not supported and will probably break
 
+## Licenses
+This project uses the following projects:
+- [ProcessMemoryDataFinder](https://github.com/Piotrekol/ProcessMemoryDataFinder), [licensed under GPL-3.0](https://github.com/Piotrekol/ProcessMemoryDataFinder/blob/master/LICENSE)

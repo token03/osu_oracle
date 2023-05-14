@@ -14,7 +14,10 @@ from keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+import warnings
+warnings.filterwarnings('ignore')
 
 if not os.path.exists('models'):
   url = 'https://drive.google.com/uc?id=14zLtVPcBDyLP-Rlj-2b6-mPIqGq-JY9J'
