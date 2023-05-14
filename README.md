@@ -13,11 +13,17 @@ osu!oracle is beatmap classifier that takes in an given osu! beatmap and categor
 
 ## Requirements
 ```
-- Python 3
-- tensorflow
-- keras
+- Python 3.10
+- .NET 5.0
+- gdown
+- Keras
 - numpy
+- tensorflow
+- h5py
+- requests
 - scikit-learn
+- matplotlib
+- joblib
 ```
 ## Getting Started
 
