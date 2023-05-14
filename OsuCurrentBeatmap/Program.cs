@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using OsuMemoryDataProvider;
 
 namespace OsuCurrentBeatmap
@@ -10,9 +12,16 @@ namespace OsuCurrentBeatmap
     internal class Program
     {
         static HttpClient client = new HttpClient();
+        static CancellationTokenSource cts = new CancellationTokenSource();
+
         static void Main(string[] args)
         {
             string osuWindowTitleHint = ""; // You can specify a hint here if needed
+            string assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string projectFolder = Path.Combine(assemblyLocation, "..", "..", "..");
+            string scriptPath = Path.Combine(projectFolder, "python", "predict.py");
+            string modelPath = Path.Combine(projectFolder, "python", "models");
+
 
             // Get instance of memory reader
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -22,32 +31,46 @@ namespace OsuCurrentBeatmap
             // Start the Python service
             Process pythonService = new Process();
             pythonService.StartInfo.FileName = "py";  // Or the path to your Python interpreter
-            pythonService.StartInfo.Arguments = "C:\\Users\\Jessie\\Desktop\\osu_oracle\\OsuCurrentBeatmap\\python\\predict.py";
+            pythonService.StartInfo.Arguments = scriptPath;
             pythonService.Start();
 
-            CancellationTokenSource cts = new CancellationTokenSource();
             int previousMapId = -1;
+            Task<string> predictionTask = null;
 
             // This is a simple loop to continuously poll for the current beatmap ID.
             // You might want to add a delay or other stopping condition.
             while (true)
             {
-                if (cts.IsCancellationRequested)
+                if (cts.Token.IsCancellationRequested)
                     break;
 
                 var status = reader.GetCurrentStatus(out _);
-                if (status == OsuMemoryStatus.SongSelect)
+                if (status == OsuMemoryStatus.SongSelect || status == OsuMemoryStatus.SongSelectEdit)
                 {
                     var mapId = reader.GetMapId();
                     if (mapId != previousMapId)
                     {
                         Console.Clear();
                         Console.WriteLine($"Previewing beatmap id: {mapId}");
+
+                        // Cancel the previous prediction task
+                        if (predictionTask != null)
+                        {
+                            cts.Cancel();
+                            cts = new CancellationTokenSource();  // Create a new cancellation token source
+                        }
+
                         previousMapId = mapId;
 
-                        // Make a prediction
-                        var prediction = Predict(new string[] { "C:\\Users\\Jessie\\Desktop\\osu_oracle\\OsuCurrentBeatmap\\python\\models" }, mapId).GetAwaiter().GetResult();  // Replace with your actual folders
-                        Console.WriteLine($"Prediction: {prediction}");
+                        // Start a new prediction task
+                        predictionTask = Predict(new string[] { modelPath }, mapId, cts.Token);
+                        predictionTask.ContinueWith(task =>
+                        {
+                            if (task.IsCompletedSuccessfully)
+                            {
+                                Console.WriteLine($"Prediction: {task.Result}");
+                            }
+                        });
                     }
                 }
 
@@ -58,7 +81,7 @@ namespace OsuCurrentBeatmap
             pythonService.Kill();
         }
 
-        static async Task<string> Predict(string[] folders, int beatmapId)
+        static async Task<string> Predict(string[] folders, int beatmapId, CancellationToken cancellationToken)
         {
             var requestBody = new
             {
@@ -66,7 +89,7 @@ namespace OsuCurrentBeatmap
                 folders = folders
             };
 
-            var response = await client.PostAsJsonAsync("http://localhost:5000/predict", requestBody);
+            var response = await client.PostAsJsonAsync("http://localhost:5000/predict", requestBody, cancellationToken);
 
             if (response.IsSuccessStatusCode)
             {
