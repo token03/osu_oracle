@@ -11,8 +11,6 @@ osu!oracle is beatmap classifier that takes in an given osu! beatmap and categor
 
 > Current categories are `aim, alt, tech, and streams` with hopefully more to come
 
-
-
 ## Requirements
 ```
 - Python 3
