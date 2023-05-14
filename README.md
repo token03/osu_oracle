@@ -21,11 +21,21 @@ osu!oracle is beatmap classifier that takes in an given osu! beatmap and categor
 ```
 ## Getting Started
 
-### Running on Colab (Highly Recommended)
+### Running on Colab (highly recommended!!)
 
 1. Simply open the Google Colab link, run the setup and you're good to go
 
-### Running Locally (outdated, contact me if you still want to try)
+### Running alongside osu! client (good for testing! <3) 
+
+1. Download the osu!oracle.zip file in the most recent release
+2. Make sure to install the requirements through `pip install -r requirements.txt`
+3. Run the executable file and launch osu!
+4. A terminal should pop up and you should see something like this:
+![Image of output](./data/terminalFirst.png)
+5. When you change songs in the song select screen, the terminal should update with the new prediction:
+![Image of output](./data/songselect.png)
+
+### Running Locally (outdated, literally won't work unless you tinker)
 
 1. Download the model from the Google Drive link above
 2. Open the directory in a terminal 

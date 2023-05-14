@@ -18,9 +18,8 @@ namespace OsuCurrentBeatmap
         {
             string osuWindowTitleHint = ""; // You can specify a hint here if needed
             string assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string projectFolder = Path.Combine(assemblyLocation, "..", "..", "..");
-            string scriptPath = Path.Combine(projectFolder, "python", "predict.py");
-            string modelPath = Path.Combine(projectFolder, "python", "models");
+            string scriptPath = Path.Combine("python", "predict.py");
+            string modelPath = Path.Combine("python", "models");
 
 
             // Get instance of memory reader
