@@ -58,14 +58,19 @@ python test_model.py 658127
 4. Output should look something like this:
 ![Image of output](./data/example.png)
 
+## Training
+
+
 ## Known Issues
 - Model performance drops significantly when working outside its trained data range of 5☆ to 8☆ maps
 - Improperly classified maps during training will continue to be misclassified
 	- (ex. [Top of the "M" top diff](https://osu.ppy.sh/beatmapsets/1302388#osu/2701095) where i accidently categorized it as `alt` instead of `aim`)
 - Gamemodes other than standard are currently not supported and will probably break
 
-## Licenses
+## Credit
 This project uses the following projects:
+- [CollectionManager](https://github.com/Piotrekol/CollectionManager) for organizing training collections
+- [osu!collector](https://osucollector.com/) for beatmap training data
 - [ProcessMemoryDataFinder](https://github.com/Piotrekol/ProcessMemoryDataFinder), [licensed under GPL-3.0](https://github.com/Piotrekol/ProcessMemoryDataFinder/blob/master/LICENSE)
 - [OsuMemoryDataProvider](https://github.com/Piotrekol/ProcessMemoryDataFinder), [licensed under GPL-3.0](https://github.com/Piotrekol/ProcessMemoryDataFinder/blob/master/LICENSE)
 
