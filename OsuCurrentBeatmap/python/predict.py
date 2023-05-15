@@ -3,7 +3,7 @@ import time
 import os
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from test_model import test_model_on_beatmap_id  
+from test_model import test_model_on_beatmap_file 
 
 app = Flask(__name__)
 
@@ -32,19 +32,18 @@ load_models(["models"])  # Replace with your actual folders
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    beatmap_id = request.json['beatmap_id']
+    map_file_path = request.json['map_file_path']
 
     predictions = []
     for i, model in enumerate(models):
         print("----------------------------------------------------")
-        config = model[0].get_config() # Returns pretty much every information about your model
-        max_sen = config["layers"][0]["config"]["batch_input_shape"][1] # returns a tuple of width, height and channels
-        prediction = test_model_on_beatmap_id(beatmap_id, model, max_sen, max_slider_length, max_time_diff, label_encoder_path)
+        max_sen = model[0].get_config()["layers"][0]["config"]["batch_input_shape"][1]
+        prediction = test_model_on_beatmap_file(map_file_path, model, max_sen, max_slider_length, max_time_diff, label_encoder_path)
         predictions.append(prediction)
     print("----------------------------------------------------")
 
-
     return jsonify(predictions)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -21,8 +21,31 @@ namespace OsuCurrentBeatmap
             string scriptPath = Path.Combine("python", "predict.py");
             string modelPath = Path.Combine("python", "models");
 
+            // Get the username of the current user
+            string username = Environment.UserName;
 
-            // Get instance of memory reader
+            // Get the path to the osu! config file
+            string configFilePath = Path.Combine("C:\\Users", username, "AppData\\Local\\osu!\\osu!." + username + ".cfg");
+
+            // Read the config file and find the beatmap directory
+            string beatmapDirectory = null;
+            using (StreamReader sr = new StreamReader(configFilePath))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (line.StartsWith("BeatmapDirectory = "))
+                    {
+                        beatmapDirectory = line.Substring("BeatmapDirectory = ".Length);
+                        break;
+                    }
+                }
+            }
+
+            if (beatmapDirectory == null)
+            {
+                throw new Exception("Could not find beatmap directory in osu! config file.");
+            }
 #pragma warning disable CS0618 // Type or member is obsolete
             IOsuMemoryReader reader = OsuMemoryReader.Instance.GetInstanceForWindowTitleHint(osuWindowTitleHint);
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -33,11 +56,10 @@ namespace OsuCurrentBeatmap
             pythonService.StartInfo.Arguments = scriptPath;
             pythonService.Start();
 
-            int previousMapId = -1;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            string previousMapFile = null;
             Task<string> predictionTask = null;
 
-            // This is a simple loop to continuously poll for the current beatmap ID.
-            // You might want to add a delay or other stopping condition.
             while (true)
             {
                 if (cts.Token.IsCancellationRequested)
@@ -46,11 +68,15 @@ namespace OsuCurrentBeatmap
                 var status = reader.GetCurrentStatus(out _);
                 if (status == OsuMemoryStatus.SongSelect || status == OsuMemoryStatus.SongSelectEdit)
                 {
-                    var mapId = reader.GetMapId();
-                    if (mapId != previousMapId)
+                    string mapFolderName = reader.GetMapFolderName();
+                    string osuFileName = reader.GetOsuFileName();
+
+                    string mapFilePath = Path.Combine(beatmapDirectory, mapFolderName, osuFileName);
+
+                    if (mapFilePath != previousMapFile)
                     {
                         Console.Clear();
-                        Console.WriteLine($"Previewing beatmap id: {mapId}");
+                        Console.WriteLine($"Previewing beatmap file: {mapFilePath}");
 
                         // Cancel the previous prediction task
                         if (predictionTask != null)
@@ -59,10 +85,10 @@ namespace OsuCurrentBeatmap
                             cts = new CancellationTokenSource();  // Create a new cancellation token source
                         }
 
-                        previousMapId = mapId;
+                        previousMapFile = mapFilePath;
 
                         // Start a new prediction task
-                        predictionTask = Predict(new string[] { modelPath }, mapId, cts.Token);
+                        predictionTask = Predict(new string[] { modelPath }, mapFilePath, cts.Token);
                         predictionTask.ContinueWith(task =>
                         {
                             if (task.IsCompletedSuccessfully)
@@ -80,11 +106,11 @@ namespace OsuCurrentBeatmap
             pythonService.Kill();
         }
 
-        static async Task<string> Predict(string[] folders, int beatmapId, CancellationToken cancellationToken)
+        static async Task<string> Predict(string[] folders, string mapFilePath, CancellationToken cancellationToken)
         {
             var requestBody = new
             {
-                beatmap_id = beatmapId,
+                map_file_path = mapFilePath,
                 folders = folders
             };
 

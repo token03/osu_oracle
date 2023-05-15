@@ -165,30 +165,15 @@ def parse_osu_file(file_path, max_slider_length = 1, max_time_diff = 1, print_in
     data['vectors'] = vectors
     return data
 
-def test_model_on_beatmap_id(beatmap_id, bagged_models, max_sequence_length, max_slider_length, max_time_diff, label_encoder_path):
+def test_model_on_beatmap_file(map_file_path, bagged_models, max_sequence_length, max_slider_length, max_time_diff, label_encoder_path):
     # Load the label encoder
     with open(label_encoder_path, 'rb') as f:
         label_encoder = pickle.load(f)
 
-    # Fetch the .osu file content from the Kitsune API
-    url = f"https://osu.direct/api/osu/{beatmap_id}"
-    response = requests.get(url)
-    if response.status_code != 200:
-        print(f"Error fetching .osu file for beatmap ID {beatmap_id}: {response.status_code}")
-        return
-
-    osu_file_content = response.content
-
-    # Save the .osu file content to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        temp_file.write(osu_file_content)
-        temp_file_path = temp_file.name
-
-    # Parse the temporary .osu file and get the beatmap data
-    beatmap_data = parse_osu_file(temp_file_path, max_slider_length, print_info = True)
+    # Parse the .osu file and get the beatmap data
+    beatmap_data = parse_osu_file(map_file_path, max_slider_length, print_info = True)
     if beatmap_data is None:
         print("Invalid .osu file.")
-        os.unlink(temp_file_path)  # Delete the temporary file
         return
 
     # Get the vectors and pad them
