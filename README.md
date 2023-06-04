@@ -33,7 +33,7 @@ osu!oracle is beatmap classifier that takes in an osu! beatmap and categorizes i
 
 1. Simply open the Google Colab link, follow the instructions and you're good to go
 
-### Running alongside osu! client (good for testing! <3) 
+### Running alongside osu! client (good for testing!!) 
 
 1. Download the osu!oracle.zip file in the most recent release
 2. Make sure to install the requirements through `pip install -r requirements.txt`
