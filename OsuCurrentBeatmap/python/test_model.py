@@ -215,7 +215,10 @@ def get_predictions_as_json(beatmap_id, bagged_models, max_sequence_length, max_
 
     # Fetch the .osu file content from the Kitsune API
     url = f"https://osu.direct/api/osu/{beatmap_id}"
-    response = requests.get(url)
+    headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+    }
+    response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f"Error fetching .osu file for beatmap ID {beatmap_id}: {response.status_code}")
         return

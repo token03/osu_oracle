@@ -65,11 +65,9 @@ python test_model.py 658127
 
 first time working with machine learning so i won't go into detail since everything is very scuffed. 
 
-basic idea is just to convert beatmap hitobjects into an array of normalized displacement-time vectors, then throw it into a CNN. 
-
 the `osu_parser.py` and `model.py` files should give you all you need to know. also take a look at the `model` section within the colab.
 
-if you're still intrested in training, message me on discord (token#8233) and i'll be happy to help you out :^)
+if you're still interested in training, message me on discord (token#8233) and i'll be happy to help you out :^)
 
 
 ## Known Issues
